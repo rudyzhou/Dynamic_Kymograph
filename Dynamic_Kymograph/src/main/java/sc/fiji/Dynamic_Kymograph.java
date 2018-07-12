@@ -15,6 +15,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,7 +50,7 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
 
-public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionListener, ImageListener, RoiListener, KeyListener, MouseListener{
+public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionListener, ImageListener, RoiListener, KeyListener, MouseListener, WindowListener{
 	
 	private Frame frame;
 	private Label anchorLabel;
@@ -148,6 +149,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		//frame.applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		
 		frame.add(mainPanel);
+		
 	}
 	
 	
@@ -164,7 +166,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		new ImageJ();
 
 		// open example stack
-		ImagePlus image = IJ.openImage("/Users/rudyz/Documents/Graduate3/biology/code/pic2.tif");
+		ImagePlus image = IJ.openImage("D:/Users/rudyz/Documents/Graduate3/biology/code/pic2.tif");
 		image.show();
 
 		// run the test plugin
@@ -255,7 +257,9 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			overlayRois.add(number);
 			
 			savedRois.updateAndDraw();
+			savedRois.flatten();
 			
+			savedRois.changes = true;
 		}
 		else {
 			IJ.error("saveRoi error: no ROI selected");
@@ -265,7 +269,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	
 	public void showAbout() {
 		IJ.showMessage("Dyamic Kymograph",
-			"I hope this works..."
+			"Plugin to generate kymographs using key framing and linear interpolation"
 		);
 	}
 
@@ -790,7 +794,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	}
 	
 	@Override
-	public void imageClosed(ImagePlus arg0) {}
+	public void imageClosed(ImagePlus ip) {}
 
 	@Override
 	public void imageOpened(ImagePlus arg0) {}
@@ -923,5 +927,9 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void windowClosing(WindowEvent e) {
 	}
 }
