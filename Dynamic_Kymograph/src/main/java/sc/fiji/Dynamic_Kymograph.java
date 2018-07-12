@@ -60,6 +60,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	private int numFrames;
 	private ImageWindow window;
 	private ImageCanvas canvas;
+	private int imageType;
 	
 	private ImagePlus savedRois;
 	private Overlay overlayRois;
@@ -81,6 +82,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		window = image.getWindow();
 		canvas = image.getCanvas();
 		numFrames = image.getNSlices();
+		imageType = image.getType();
 		
 		savedRois = new ImagePlus("Saved ROIS",  image.getStack().getProcessor(1));
 		savedRois.show();
@@ -392,7 +394,8 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	    		for (int j=0; j<=n2; j++) {
 	        			index = (int)distance+j;
 	        			if (index<values.length)
-	           			values[index] = ip.getInterpolatedValue(rx, ry);
+	        				values[index] = getPixel(ip, rx, ry);
+	           			//values[index] = ip.getInterpolatedValue(rx, ry);
 	        			rx += xinc;
 	     	   			ry += yinc;
 	    		}
@@ -402,6 +405,16 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	
 		return values;
 	}	
+	
+	public double getPixel(ImageProcessor ip, double x, double y) {
+		
+		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
+			return ip.getInterpolatedValue(x, y);
+		}
+		else {
+			return ((ColorProcessor) ip).getInterpolatedRGBPixel(x, y);
+		}
+	}
 	
 	public double[] averageWidth(ImagePlus imp, Roi roi, int lineWidth) {
 		
@@ -675,8 +688,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			}
 		}
 		
-		int imageType = image.getType();
-		
 		ImageProcessor kymo;
 		
 		if(imageType == ImagePlus.GRAY8) {
@@ -707,7 +718,8 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			alignedPixels = alignPixels(pixels, kymoLength, maxAnchorIndex, currentRoi);
 			
 			for(int i = 0; i < alignedPixels.length && i < kymoLength; i++){
-				kymo.putPixelValue(i, frame, alignedPixels[i]);
+				//kymo.putPixelValue(i, frame, alignedPixels[i]);
+				putPixel(kymo, i, frame, alignedPixels[i]);
 			}
 		}
 		
@@ -720,6 +732,16 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		Roi.addRoiListener(this);
 	}
 	
+	
+	public void putPixel(ImageProcessor ip, int x, int y, double value) {
+		
+		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
+			ip.putPixelValue(x, y, value);
+		}
+		else {
+			((ColorProcessor) ip).putPixel(x, y, (int) value);
+		}
+	}
 	
 	@Override
 	public void roiModified(ImagePlus imp, int id) {
