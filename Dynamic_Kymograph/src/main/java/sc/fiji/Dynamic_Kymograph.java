@@ -186,8 +186,8 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			IJ.error("No ROIs recorded");
 		}
 		else {
-		assembleKymographInterpolate();
-		IJ.log("Making Kymograph");	
+			assembleKymographInterpolate();
+			IJ.log("Making Kymograph");	
 		}
 	}
 	
@@ -421,18 +421,23 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		double[] pixels = getPixelsPolyline(roi, imp, 0);
 		
-		for (int width = 1; width <= lineWidth/2; width++) {
-			double[] nextShiftPlus = getPixelsPolyline(roi, imp, width);
-			double[] nextShiftMinus = getPixelsPolyline(roi, imp, -width);
-			
-			for(int i = 0; i < pixels.length; i++) {
-				pixels[i] += nextShiftPlus[i] + nextShiftMinus[i];
+		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
+			for (int width = 1; width <= lineWidth/2; width++) {
+				double[] nextShiftPlus = getPixelsPolyline(roi, imp, width);
+				double[] nextShiftMinus = getPixelsPolyline(roi, imp, -width);
+				
+				for(int i = 0; i < pixels.length; i++) {
+					pixels[i] += nextShiftPlus[i] + nextShiftMinus[i];
+				}
+				
 			}
 			
+			for(int i = 0; i < pixels.length; i++) {
+				pixels[i] /= lineWidth;
+			}
 		}
-		
-		for(int i = 0; i < pixels.length; i++) {
-			pixels[i] /= lineWidth;
+		else {
+			
 		}
 		
 		return pixels;
