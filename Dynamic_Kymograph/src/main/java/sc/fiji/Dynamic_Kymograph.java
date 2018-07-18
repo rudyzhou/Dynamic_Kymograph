@@ -422,6 +422,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		double[] pixels = getPixelsPolyline(roi, imp, 0);
 		
 		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
+			
 			for (int width = 1; width <= lineWidth/2; width++) {
 				double[] nextShiftPlus = getPixelsPolyline(roi, imp, width);
 				double[] nextShiftMinus = getPixelsPolyline(roi, imp, -width);
@@ -436,11 +437,38 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 				pixels[i] /= lineWidth;
 			}
 		}
+		
+		//figure out what to do for color kymographs
 		else {
 			
+			for (int width = 1; width <= lineWidth/2; width++) {
+				double[] nextShiftPlus = getPixelsPolyline(roi, imp, width);
+				double[] nextShiftMinus = getPixelsPolyline(roi, imp, -width);
+				
+				for(int i = 0; i < pixels.length; i++) {
+					
+				}
+				
+			}
 		}
 		
 		return pixels;
+	}
+	
+	//does this even work
+	public int[] ARGBtoRGB(int argb) {
+		
+		int[] rgb = new int[3];
+		int a = (argb >> 24) & 0xFF;
+		int r = (argb >> 16) & 0xFF;
+		int g = (argb >> 8) & 0xFF;
+		int b = argb & 0xFF;
+		
+		rgb[0] = a * r;
+		rgb[1] = a * g;
+		rgb[2] = a * b;
+		
+		return rgb;
 	}
 	
 	//assume for now both Rois are polylines with the same number of points (and same anchor)
