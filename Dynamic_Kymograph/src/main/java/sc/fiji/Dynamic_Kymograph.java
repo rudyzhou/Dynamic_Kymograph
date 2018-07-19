@@ -6,43 +6,42 @@ import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.FlowLayout;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Color;
-import java.awt.ComponentOrientation;
-import java.awt.FlowLayout;
 
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
+
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Overlay;
-import ij.gui.PointRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.gui.TextRoi;
+
 import ij.plugin.PlugIn;
 import ij.plugin.frame.PlugInFrame;
+
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.FloatPolygon;
@@ -50,31 +49,47 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
 
-public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionListener, ImageListener, RoiListener, KeyListener, MouseListener, WindowListener{
+/**
+ * Dynamic_Kymograph.java
+ * Purpose: imageJ plugin to generate kymographs using key framing and linear interpolation
+ *
+ * @author Rudy Zhou
+ * @version 0.0.8-SNAPSHOT
+ */
+@SuppressWarnings("serial")
+public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionListener, ImageListener, RoiListener, KeyListener, MouseListener {
 	
+	//for UI window
 	private Frame frame;
 	private Label anchorLabel;
-	private Label statusLabel;
 	
+	//image properties
 	protected ImagePlus image;
 	private int numFrames;
 	private ImageWindow window;
 	private ImageCanvas canvas;
 	private int imageType;
 	
+	//for Saved ROIs window
 	private ImagePlus savedRois;
 	private Overlay overlayRois;
-	
 	private Overlay overlayAnchor;
 	
 	//maintains the "edited" polylines that the user inputs
 	private HashMap<Integer, Roi> recordedRois = new HashMap<Integer, Roi>();
 	private Roi[] interpolatedRois;
 	
-	//ID of the anchor point
+	//anchor point properties
 	private int anchorID;
 	private boolean anchorExists;
 	
+	/**
+	 * Runs the plugin. Initializes UI windows and begins listeners for user input.
+	 *
+	 *@param arg0 not used.
+	 *
+	 * @return void.
+	 */
 	public void run(String arg0) {
 		
 		//assume stack already opened; get the associated image parameters
@@ -84,6 +99,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		numFrames = image.getNSlices();
 		imageType = image.getType();
 		
+		//initialize Saved ROIs window as copy of first frame of image
 		savedRois = new ImagePlus("Saved ROIS",  image.getStack().getProcessor(1));
 		savedRois.show();
 		
@@ -91,8 +107,8 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		savedRois.setOverlay(overlayRois);
 		
-		overlayAnchor = new Overlay();
-		image.setOverlay(overlayAnchor);
+		//overlayAnchor = new Overlay();
+		//image.setOverlay(overlayAnchor);
 		
 		//indexed by frames 1 through numFrames
 		interpolatedRois = new Roi[numFrames + 1];
@@ -104,6 +120,10 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		addListeners();
 	}
 
+	/**
+	 * Constructs the UI window. Initializes buttons and adds appropriate listeners.
+	 * Note this method is ran whenever the plugin is ran.
+	 */
 	public Dynamic_Kymograph() {
 		
 		super("Dynamic Kymograph");
@@ -154,7 +174,14 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 	}
 	
-	
+	/**
+	 * Used for testing in Java environment (not in imageJ.) Starts an instance of imageJ, opens a test image, and runs the plugin on the test image.
+	 * Note that the directory of the test image must be changed to run on your own computer.
+	 *
+	 *@param args not used.
+	 *
+	 * @return void.
+	 */
 	public static void main(String[] args) {
 		
 		Class<?> clazz = Dynamic_Kymograph.class;
@@ -175,12 +202,23 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		IJ.runPlugIn(clazz.getName(), "");
 	}
 	
+	/**
+	 * Does linear interpolation using all recorded key frames.
+	 * Ran whenever a new key frame is recorded.
+	 *
+	 * @return void.
+	 */
 	public void interpolate() {
 		
 		fillRoiArrayInterpolate();
 		IJ.log("Interpolate");
 	}
 	
+	/**
+	 * Generates a kymograph using interpolated frames.
+	 *
+	 * @return void.
+	 */
 	public void makeKymograph() {
 		if(recordedRois.isEmpty()) {
 			IJ.error("No ROIs recorded");
@@ -191,6 +229,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		}
 	}
 	
+	/**
+	 * Deletes all key frames (and their corresponding interpolated frames) and resets the anchor point.
+	 *
+	 * @return void.
+	 */
 	public void resetKeyFrames() {
 			
 		resetAnchor();
@@ -203,6 +246,13 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		IJ.log("Reset key frames");
 	}
 	
+	/**
+	 * Prompts the user to use the mouse to click on a vertex to select it as the anchor point.
+	 *
+	 * @throws InterruptedException
+	 * 
+	 * @return void.
+	 */
 	public void promptAnchorPoint() throws InterruptedException {
 		if(anchorExists) {
 			IJ.error("promtAnchorPoint error: anchor already exists");
@@ -224,6 +274,12 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 	}
 	
+	/**
+	 * Draws the current interpolated ROI (on the first frame) on the Saved ROIs window in a random color.
+	 * Can cycle through random colors by repeatedly calling method.
+	 *
+	 * @return void.
+	 */
 	public void saveRoi() {
 		
 		Roi currentRoi = (Roi) interpolatedRois[1].clone();
@@ -269,13 +325,17 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 
 	}
 	
+	/**
+	 * Shows short message describing the plugin.
+	 *
+	 * @return void.
+	 */
 	public void showAbout() {
 		IJ.showMessage("Dyamic Kymograph",
 			"Plugin to generate kymographs using key framing and linear interpolation"
 		);
 	}
 
-	//used by all Buttons
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
@@ -982,9 +1042,5 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	@Override
-	public void windowClosing(WindowEvent e) {
 	}
 }
