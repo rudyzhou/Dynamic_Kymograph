@@ -336,6 +336,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		);
 	}
 
+	/**
+	 * For UI button presses. Calls the respective method for each button.
+	 *
+	 * @return void.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
@@ -366,6 +371,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		}
 	}
 	
+	/**
+	 * Adds listeners for key framing and anchor point selection.
+	 *
+	 * @return void.
+	 */
 	private void addListeners() {
 		
 		if(window != null) {
@@ -385,6 +395,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		IJ.log("added listeners");
 	}
 	
+	/**
+	 * Removes listeners for key framing and anchor point selection.
+	 *
+	 * @return void.
+	 */
 	private void removeListeners() {
         
 		if (window!=null) {
@@ -403,7 +418,18 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
         IJ.log("removed listeners");
 	}
 	
-	//Stolen from MultipleKymograph_ plugin; for polyline ROIs
+	/**
+	 * Slightly modified from MultipleKymograph plugin.
+	 * Walks (from start to end) on a polyline ROI to get the pixels along the way.
+	 * Note implementation of "shift" is naive and is not perpendicular to polyline.
+	 * 
+	 *
+	 * @param roi the polyline ROI to walk along
+	 * @param imp the image (on the appropriate frame) that the ROI is associated with
+	 * @param shift used to implement line width. Shifts the polyline up or down
+	 * 
+	 * @return Array of pixels along the ROI. Length of the array is roughly the length of the ROI.
+	 */
 	public double[] getPixelsPolyline(Roi roi, ImagePlus imp, int shift) {
 		
 		ImageProcessor ip = imp.getProcessor();
@@ -466,6 +492,15 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		return values;
 	}	
 	
+	/**
+	 * Returns the pixel value at specified coordinates. Returns greyscale or ARGB pixel depending on image type.
+	 *
+	 * @param ip the image (on a specific frame)
+	 * @param x x coordinate  
+	 * @param y y coordinate
+	 * 
+	 * @return interpolated greyscale or ARGB pixel located at coordinates (x,y).
+	 */
 	public double getPixel(ImageProcessor ip, double x, double y) {
 		
 		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
@@ -476,6 +511,15 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		}
 	}
 	
+	/**
+	 * Implements line width by averaging over multiple pixel arrays obtained by changing the "shift" parameter in "getPixelsPolyline."
+	 * 
+	 * @param imp the image (on the appropriate frame)
+	 * @param roi the polyline ROI to walk along
+	 * @param lineWidth the number of "shifts to average over
+	 *
+	 * @return elementwise average of the shifted pixel arrays.
+	 */
 	public double[] averageWidth(ImagePlus imp, Roi roi, int lineWidth) {
 		
 		
