@@ -73,7 +73,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	//for Saved ROIs window
 	private ImagePlus savedRois;
 	private Overlay overlayRois;
-	private Overlay overlayAnchor;
 	
 	//maintains the "edited" polylines that the user inputs
 	private HashMap<Integer, Roi> recordedRois = new HashMap<Integer, Roi>();
@@ -99,16 +98,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		numFrames = image.getNSlices();
 		imageType = image.getType();
 		
-		//initialize Saved ROIs window as copy of first frame of image
+		//initialize Saved ROIs window as copy of first frame of image. Set up the overlay, which is used to store and display multiple ROIs
 		savedRois = new ImagePlus("Saved ROIS",  image.getStack().getProcessor(1));
 		savedRois.show();
-		
 		overlayRois = new Overlay();
-		
 		savedRois.setOverlay(overlayRois);
-		
-		//overlayAnchor = new Overlay();
-		//image.setOverlay(overlayAnchor);
 		
 		//indexed by frames 1 through numFrames
 		interpolatedRois = new Roi[numFrames + 1];
@@ -135,6 +129,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			return;
 		}
 		
+		//set up the UI frame
 		frame = this;
 		WindowManager.addWindow(this);
 		
@@ -147,31 +142,26 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		mainPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 		
 		Button anchorButton = new Button("Select anchor point");
-		Button kymographButton = new Button("Make kymograph");
-		Button saveCurrentRoi = new Button("Save current ROI");
-		Button resetKeyFramesButton = new Button("Reset key frames");
-
-		anchorLabel = new Label("Anchor not set");
-		anchorLabel.setSize(anchorLabel.getPreferredSize());
-		//statusLabel = new Label("status");
-		
-		kymographButton.addActionListener(this);
-		resetKeyFramesButton.addActionListener(this);
 		anchorButton.addActionListener(this);
-		saveCurrentRoi.addActionListener(this);
-
 		mainPanel.add(anchorButton);
+		
+		Button kymographButton = new Button("Make kymograph");
+		kymographButton.addActionListener(this);
 		mainPanel.add(kymographButton);
+		
+		Button saveCurrentRoi = new Button("Save current ROI");
+		saveCurrentRoi.addActionListener(this);
 		mainPanel.add(saveCurrentRoi);
+		
+		Button resetKeyFramesButton = new Button("Reset key frames");
+		resetKeyFramesButton.addActionListener(this);
 		mainPanel.add(resetKeyFramesButton);
 		
-		//mainPanel.add(statusLabel);
+		anchorLabel = new Label("Anchor not set");
+		anchorLabel.setSize(anchorLabel.getPreferredSize());
 		mainPanel.add(anchorLabel);
-		
-		//frame.applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-		
-		frame.add(mainPanel);
-		
+	
+		frame.add(mainPanel);	
 	}
 	
 	/**
@@ -220,6 +210,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * @return void.
 	 */
 	public void makeKymograph() {
+		
 		if(recordedRois.isEmpty()) {
 			IJ.error("No ROIs recorded");
 		}
@@ -254,6 +245,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * @return void.
 	 */
 	public void promptAnchorPoint() throws InterruptedException {
+		
 		if(anchorExists) {
 			IJ.error("promtAnchorPoint error: anchor already exists");
 		}
@@ -264,6 +256,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 				anchorLabel.setText("Click on a handle to set it as the anchor point");
 				anchorLabel.setSize(anchorLabel.getPreferredSize());
 				
+				//prompt user for mouse input
 				canvas.addMouseListener(this);
 				frame.addMouseListener(this);
 			}
@@ -286,23 +279,24 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		if (currentRoi != null) {
 			
-			if(overlayRois.contains(currentRoi)) {
+			if(overlayRois.contains(currentRoi)) { //allows user to cycle through random colors by repeatedly calling saveRoi
+				
 				int indexToReplace = 0;
 				
 				while(!overlayRois.get(indexToReplace).equals(currentRoi)) {
 					indexToReplace++;
 				}
 				
+				//remove both the ROI and its associated number from the overlay
 				overlayRois.remove(indexToReplace + 1);
 				overlayRois.remove(indexToReplace);
 			}
 			
-			int x;
-			int y;
 			Polygon currentRoiPoly = currentRoi.getPolygon();
-			x = currentRoiPoly.xpoints[0];
-			y = currentRoiPoly.ypoints[0];
+			int x = currentRoiPoly.xpoints[0];
+			int y = currentRoiPoly.ypoints[0];
 			
+			//create number by the first vertex of the ROI
 			TextRoi number = new TextRoi(x, y, Integer.toString(overlayRois.size()/2 + 1));
 			
 			Random rand = new Random();
@@ -315,9 +309,9 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			overlayRois.add(number);
 			
 			savedRois.updateAndDraw();
-			savedRois.flatten();
+			savedRois.flatten();	//note that flattening might matter if you save the savedROIs image as something other than a .tif (like .png or .jpeg or something) to make sure the drawn lines and numbers appear
 			
-			savedRois.changes = true;
+			savedRois.changes = true;	//so that imageJ will ask you if you want to save the image if you try to close the savedROIs window
 		}
 		else {
 			IJ.error("saveRoi error: no ROI selected");
@@ -359,7 +353,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			try {
 				promptAnchorPoint();
 			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -384,7 +377,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		if(canvas != null) {
 			canvas.addKeyListener(this);
-			//canvas.addMouseListener(this);
 		}
 		
 		
@@ -408,7 +400,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
         if (canvas!=null) {
             canvas.removeKeyListener(this);
-           // canvas.removeMouseListener(this);
         }
 		
         ImagePlus.removeImageListener(this);
@@ -481,7 +472,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	        			index = (int)distance+j;
 	        			if (index<values.length)
 	        				values[index] = getPixel(ip, rx, ry);
-	           			//values[index] = ip.getInterpolatedValue(rx, ry);
 	        			rx += xinc;
 	     	   			ry += yinc;
 	    		}

@@ -2,6 +2,8 @@ package sc.fiji;
 
 import java.util.TreeSet;
 
+//I hav't used this in the plugin, but the idea is to make a more appropriate data type to store the KeyFrames rather than a HashMap (which is what the plugin currently uses.)
+
 public class KeyFrames {
 
 	private TreeSet<KeyFrame> keyFrames;

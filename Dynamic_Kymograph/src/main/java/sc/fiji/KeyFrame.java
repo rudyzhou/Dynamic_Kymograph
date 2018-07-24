@@ -2,6 +2,8 @@ package sc.fiji;
 
 import ij.gui.Roi;
 
+//I haven't used this class in the plugin yet, but the idea was to store both the frame number and ROI in a KeyFrame object.
+
 public class KeyFrame implements Comparable<KeyFrame>{
 	
 	private int frame;

@@ -15,8 +15,7 @@
   	</dependency>
   </dependencies>
   <name>Dynamic Kymograph</name>
-  <url>https://github.com/rudyzhou</url>
-  <description>A plugin</description>
+  <url>https://github.com/rudyzhou/Dynamic_Kymograph</url>
   <organization>
   	<name>Rudy Zhou</name>
   	<url>https://github.com/rudyzhou</url>
@@ -71,4 +70,5 @@
   	<license.licenseName>dunno</license.licenseName>
   	<license.copyrightOwners>dunno</license.copyrightOwners>
   </properties>
+  <description>ImageJ plugin to generate kymographs using key framing and linear interpolation</description>
 </project>
