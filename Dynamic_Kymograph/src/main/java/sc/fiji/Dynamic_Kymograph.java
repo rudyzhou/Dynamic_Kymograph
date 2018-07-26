@@ -81,6 +81,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	//anchor point properties
 	private int anchorID;
 	private boolean anchorExists;
+	static final int ANCHOR_KEY = 17; //set to "ctrl" key
 	
 	/**
 	 * Runs the plugin. Initializes UI windows and begins listeners for user input.
@@ -185,7 +186,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		new ImageJ();
 
 		// open example stack
-		ImagePlus image = IJ.openImage("D:/Users/rudyz/Documents/Graduate3/biology/code/pic2.tif");
+		ImagePlus image = IJ.openImage("D:/Users/rudyz/Documents/Graduate3/biology/code/pic2.tif");	//TODO in general will need to change this file path
 		image.show();
 
 		// run the test plugin
@@ -471,7 +472,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	    		for (int j=0; j<=n2; j++) {
 	        			index = (int)distance+j;
 	        			if (index<values.length)
-	        				values[index] = getPixel(ip, rx, ry);
+	        				values[index] = getPixel(ip, rx, ry);	//modified to handle colored images
 	        			rx += xinc;
 	     	   			ry += yinc;
 	    		}
@@ -512,7 +513,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 */
 	public double[] averageWidth(ImagePlus imp, Roi roi, int lineWidth) {
 		
-		
 		double[] pixels = getPixelsPolyline(roi, imp, 0);
 		
 		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
@@ -532,7 +532,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			}
 		}
 		
-		//figure out what to do for color kymographs
+		//TODO figure out what to do for colored kymographs. Current implementation is the same as for greyscale images, but this is not correct.
 		else {
 			
 			for (int width = 1; width <= lineWidth/2; width++) {
@@ -540,9 +540,13 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 				double[] nextShiftMinus = getPixelsPolyline(roi, imp, -width);
 				
 				for(int i = 0; i < pixels.length; i++) {
-					
+					pixels[i] += nextShiftPlus[i] + nextShiftMinus[i];
 				}
 				
+			}
+			
+			for(int i = 0; i < pixels.length; i++) {
+				pixels[i] /= lineWidth;
 			}
 		}
 		
@@ -558,7 +562,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * @return array of 3 integers (representing red, blue, and green).
 	 */
 	public int[] ARGBtoRGB(int argb) {
-		
+		//TODO not sure if this works
 		int[] rgb = new int[3];
 		int a = (argb >> 24) & 0xFF;
 		int r = (argb >> 16) & 0xFF;
@@ -598,30 +602,37 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		float[] endX = endPolygon.xpoints;
 		float[] endY =  endPolygon.ypoints;
 		
-		float[] difX = new float[startN];
-		float[] difY = new float[startN];
-		
-		for(int i = 0; i < startN; i++) {
-			difX[i] = (endX[i] - startX[i]) /dFrame;
-			difY[i] = (endY[i] - startY[i]) /dFrame;
+		if(startN != endN) {
+			IJ.error("interpolateRoi: polylines must have same number of points");
+			return null;
 		}
 		
-		float[] interpolatedX = startX;
-		float[] interpolatedY = startY;
-		
-		Roi[] interpolatedRois = new Roi[dFrame+1];
-		
-		for(int frame = 0; frame < interpolatedRois.length; frame++) {
+		else {
+			float[] difX = new float[startN];
+			float[] difY = new float[startN];
 			
-			interpolatedRois[frame] = new PolygonRoi(interpolatedX, interpolatedY, startN, Roi.POLYLINE);
-			
-			for (int i = 0; i < interpolatedX.length; i++) {
-				interpolatedX[i] += difX[i];
-				interpolatedY[i] += difY[i];
+			for(int i = 0; i < startN; i++) {
+				difX[i] = (endX[i] - startX[i]) /dFrame;
+				difY[i] = (endY[i] - startY[i]) /dFrame;
 			}
+			
+			float[] interpolatedX = startX;
+			float[] interpolatedY = startY;
+			
+			Roi[] interpolatedRois = new Roi[dFrame+1];
+			
+			for(int frame = 0; frame < interpolatedRois.length; frame++) {
+				
+				interpolatedRois[frame] = new PolygonRoi(interpolatedX, interpolatedY, startN, Roi.POLYLINE);
+				
+				for (int i = 0; i < interpolatedX.length; i++) {
+					interpolatedX[i] += difX[i];
+					interpolatedY[i] += difY[i];
+				}
 		}
 		
-		return interpolatedRois;
+			return interpolatedRois;
+		}
 	}
 	
 	/**
@@ -654,7 +665,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		int anchorIndex = (int) lengthBeforeAnchor;
 		
-		int startIndex = 0;
+		int startIndex = 0;	//defined such that startIndex + lengthBeforeAnchor = indexToMatch so that the anchor point is aligned with the indexToMatch
 		if (indexToMatch - anchorIndex > 1) {
 			startIndex = indexToMatch - anchorIndex;
 		}
@@ -683,7 +694,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 				}
 			}
 			else {
-				
+				//TODO this implementation is relatively inefficient. Could make more elegant and efficient with better data structure (see KeyFrames)
 				List<Integer> sortedRois = new ArrayList<Integer>(recordedRois.keySet());
 				Collections.sort(sortedRois);
 				
@@ -694,10 +705,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 					interpolatedRois[frame] = recordedRois.get(frame);
 				}
 				
-				interpolatedRois[1] = interpolatedRois[firstKeyFrame];
+				interpolatedRois[1] = interpolatedRois[firstKeyFrame];	//propagate first key frame to beginning of image stack
 				
-				interpolatedRois[numFrames] = interpolatedRois[lastKeyFrame];
+				interpolatedRois[numFrames] = interpolatedRois[lastKeyFrame]; 	//propagate last key frame to end of image stack
 				
+				//the "if" statements ensure that there will be no interpolation before the first key frame and after the last key frame
 				if(!sortedRois.contains(1)) {
 					sortedRois.add(1);
 				}
@@ -721,13 +733,14 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 					if (roiIterator.hasNext()) {
 						nextFrame = roiIterator.next();
 						System.out.println("next frame: " + nextFrame);
-						currentInterpolation = interpolateRoi(interpolatedRois[currentFrame], interpolatedRois[nextFrame], currentFrame, nextFrame);
+						currentInterpolation = interpolateRoi(interpolatedRois[currentFrame], interpolatedRois[nextFrame], currentFrame, nextFrame);	//interpolate between currentFrame and nextFrame
 						roiIterator.previous();
 					}
 					
 					for (int i = 0; i <currentInterpolation.length; i++) {
-						interpolatedRois[currentFrame + i] = currentInterpolation[i];
+						interpolatedRois[currentFrame + i] = currentInterpolation[i];	//fill in the interpolated frames between currentFrame and nextFrame
 					}
+					
 					currentFrame = nextFrame;
 				}
 			}
@@ -819,7 +832,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		int kymoHeight = numFrames;
 		int kymoLength = 0; //use length of longest ROI
 		
-		//find longest ROI
+		//find longest ROI and the ROI with the furthest distance to the anchor point
 		for (Roi roi: recordedRois.values()) {
 			
 			double[] pixels = null;
@@ -830,7 +843,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			
 			int[] x = roiPolygon.xpoints;
 			int[] y = roiPolygon.ypoints;
-			int n = roiPolygon.npoints;
 			
 			double lengthBeforeAnchor = 0;
 			
@@ -880,7 +892,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			alignedPixels = alignPixels(pixels, kymoLength, maxAnchorIndex, currentRoi);
 			
 			for(int i = 0; i < alignedPixels.length && i < kymoLength; i++){
-				//kymo.putPixelValue(i, frame, alignedPixels[i]);
 				putPixel(kymo, i, frame, alignedPixels[i]);
 			}
 		}
@@ -1016,14 +1027,18 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		int keyCode = e.getKeyCode();
 		
-		if(keyCode == 17) { //if ctrl is pressed
+		if(keyCode == ANCHOR_KEY) { //if ctrl is pressed
         	
         	Point cursorLoc = canvas.getCursorLoc();
         	Roi currentRoi = image.getRoi();
         	IJ.log("cursorLoc " + cursorLoc + " roi " + currentRoi);
+        	
         	if (currentRoi != null) {
+        		
     			if(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)) != -1) {
+    				
     				if(anchorExists) {
+    					
     					if(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)) == anchorID) {
     						IJ.log("don't move anchor");
     					}
@@ -1032,20 +1047,27 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
     					}
     				}
     				else {
-    					updateAnchor(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)));
+    					updateAnchor(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)));	//set anchor point to current mouse location if it's on a vertex
     					IJ.log("set handleID: " + anchorID + " at location: " + cursorLoc.x + " , " + cursorLoc.y);
     				}      	
     			}
         	}
         	else {
+        		
         		IJ.error("no ROI/handle");
         	}
         }
         else {
-        	IJ.getInstance().keyPressed(e);
+        	IJ.getInstance().keyPressed(e);	//pass the key press to imageJ (in case ANCHOR_KEY is used for some other action)
         }
 		
 	}
+	
+	@Override
+	public void keyReleased(KeyEvent e) {}
+
+	@Override
+	public void keyTyped(KeyEvent e) {}
 	
 	/**
 	 * Sets/updates the anchor point. Also updates the anchor status message.
@@ -1084,12 +1106,6 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		removeListeners();
 		frame = null;
 	}
-	
-	@Override
-	public void keyReleased(KeyEvent e) {}
-
-	@Override
-	public void keyTyped(KeyEvent e) {}
 
 	/**
 	 * Notified by MouseListener when the mouse is clicked. Used to set the anchor point by clicking on a vertex.
@@ -1102,8 +1118,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		Point cursorLoc = canvas.getCursorLoc();
     	Roi currentRoi = image.getRoi();
     	IJ.log("cursorLoc " + cursorLoc + " roi " + currentRoi);
+    	
     	if (currentRoi != null) {
+    		
 			if(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)) != -1) {
+				
 				if(anchorExists) {
 					if(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)) == anchorID) {
 						IJ.log("don't move anchor");
@@ -1113,7 +1132,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 					}
 				}
 				else {
-					updateAnchor(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)));
+					updateAnchor(currentRoi.isHandle(canvas.screenX(cursorLoc.x), canvas.screenY(cursorLoc.y)));	//set anchor point to current mouse location if it's on a vertex
 					IJ.log("set handleID: " + anchorID + " at location: " + cursorLoc.x + " , " + cursorLoc.y);
 				}      	
 			}
@@ -1121,6 +1140,8 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
     	else {
     		IJ.error("no ROI/handle");
     	}
+    	
+    	//remove listeners to end the prompt
 		canvas.removeMouseListener(this);
 		frame.removeMouseListener(this);
 		
