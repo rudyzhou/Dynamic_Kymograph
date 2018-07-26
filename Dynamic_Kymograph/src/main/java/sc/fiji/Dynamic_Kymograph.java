@@ -186,7 +186,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		new ImageJ();
 
 		// open example stack
-		ImagePlus image = IJ.openImage("D:/Users/rudyz/Documents/Graduate3/biology/code/pic2.tif");	//TODO in general will need to change this file path
+		ImagePlus image = IJ.openImage("D:/Users/rudyz/Documents/Graduate3/biology/code/pic.tif");	//TODO in general will need to change this file path
 		image.show();
 
 		// run the test plugin
@@ -194,23 +194,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	}
 	
 	/**
-	 * Does linear interpolation using all recorded key frames.
-	 * Ran whenever a new key frame is recorded.
-	 *
-	 * @return void.
-	 */
-	public void interpolate() {
-		
-		fillRoiArrayInterpolate();
-		IJ.log("Interpolate");
-	}
-	
-	/**
 	 * Generates a kymograph using interpolated frames.
 	 *
 	 * @return void.
 	 */
-	public void makeKymograph() {
+	private void makeKymograph() {
 		
 		if(recordedRois.isEmpty()) {
 			IJ.error("No ROIs recorded");
@@ -226,7 +214,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 *
 	 * @return void.
 	 */
-	public void resetKeyFrames() {
+	private void resetKeyFrames() {
 			
 		resetAnchor();
 				
@@ -245,7 +233,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * 
 	 * @return void.
 	 */
-	public void promptAnchorPoint() throws InterruptedException {
+	private void promptAnchorPoint() throws InterruptedException {
 		
 		if(anchorExists) {
 			IJ.error("promtAnchorPoint error: anchor already exists");
@@ -274,7 +262,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 *
 	 * @return void.
 	 */
-	public void saveRoi() {
+	private void saveRoi() {
 		
 		Roi currentRoi = (Roi) interpolatedRois[1].clone();
 		
@@ -341,10 +329,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		String label = e.getActionCommand();
 		
-		if (label == "Interpolate") {
-			interpolate();
-		}
-		else if (label == "Make kymograph") {
+		if (label == "Make kymograph") {
 			makeKymograph();
 		}
 		else if (label == "Reset key frames") {
@@ -492,7 +477,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * 
 	 * @return interpolated greyscale or ARGB pixel located at coordinates (x,y).
 	 */
-	public double getPixel(ImageProcessor ip, double x, double y) {
+	private double getPixel(ImageProcessor ip, double x, double y) {
 		
 		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
 			return ip.getInterpolatedValue(x, y);
@@ -561,7 +546,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * 
 	 * @return array of 3 integers (representing red, blue, and green).
 	 */
-	public int[] ARGBtoRGB(int argb) {
+	private int[] ARGBtoRGB(int argb) {
 		//TODO not sure if this works
 		int[] rgb = new int[3];
 		int a = (argb >> 24) & 0xFF;
@@ -587,7 +572,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * 
 	 * @return array of interpolated ROIs such that the the i-th entry is the interpolated ROI on frame "startFrame + i"
 	 */
-	public Roi[] interpolateRoi(Roi startRoi, Roi endRoi, int startFrame, int endFrame) {
+	private Roi[] interpolateRoi(Roi startRoi, Roi endRoi, int startFrame, int endFrame) {
 		
 		int dFrame = endFrame - startFrame;
 		
@@ -645,7 +630,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * 
 	 * @return a pixel array of size kymoWidth such that the anchor point of the input pixel array is aligned with indexToMatch
 	 */
-	public double[] alignPixels(double[] pixels, int kymoWidth, int indexToMatch, Roi roi) {
+	private double[] alignPixels(double[] pixels, int kymoWidth, int indexToMatch, Roi roi) {
 	
 		double[] alignedPixels = new double[kymoWidth];
 		
@@ -913,7 +898,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 * @param y the y-coordinate in the kymograph
 	 * @param value the pixel value (either greyscale or ARGB) to place at (x,y)
 	 */
-	public void putPixel(ImageProcessor ip, int x, int y, double value) {
+	private void putPixel(ImageProcessor ip, int x, int y, double value) {
 		
 		if (imageType == ImagePlus.GRAY8 || imageType == ImagePlus.GRAY16 || imageType == ImagePlus.GRAY32) {
 			ip.putPixelValue(x, y, value);
