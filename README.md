@@ -45,6 +45,10 @@ We recommend installing [fiji](http://fiji.sc/) (a package including imageJ and 
 
 ## Authors
 
+* **Rudy Zhou** - [rudyzhou](https://github.com/rudyzhou)
+
 ## License
+
+This project is licensed under the GNU General Public License v3 (GPLv3) - see the [license.md] file for a copy of the license.
 
 ## Acknowledgments
