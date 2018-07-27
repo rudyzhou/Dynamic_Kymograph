@@ -400,7 +400,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	}
 	
 	/***************************************************************************************
-	*    Title: MultipleKymograph_ source code (modified getIrregularProfile method)
+	*    Title: MultipleKymograph_ source code (modified "getIrregularProfile" method)
 	*    Author: J. Rietdorf and A. Seitz
 	*    Date: 2008
 	*    Code version: 3.0.1
