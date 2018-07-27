@@ -1,3 +1,7 @@
+/* This project is licensed under the GNU General Public License v3 (GPLv3).
+ * A copy of the license can be found at the following link: <https://www.gnu.org/licenses/gpl-3.0.en.html>
+ */
+
 package sc.fiji;
 
 import java.awt.Frame;
@@ -54,7 +58,7 @@ import ij.process.ShortProcessor;
  * Purpose: imageJ plugin to generate kymographs using key framing and linear interpolation
  *
  * @author Rudy Zhou
- * @version 0.0.8-SNAPSHOT
+ * @version v1.0
  */
 @SuppressWarnings("serial")
 public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionListener, ImageListener, RoiListener, KeyListener, MouseListener {
@@ -86,7 +90,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	/**
 	 * Runs the plugin. Initializes UI windows and begins listeners for user input.
 	 *
-	 *@param arg0 not used.
+	 * @param arg0 not used.
 	 *
 	 * @return void.
 	 */
@@ -395,6 +399,14 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
         IJ.log("removed listeners");
 	}
 	
+	/***************************************************************************************
+	*    Title: MultipleKymograph_ source code (modified getIrregularProfile method)
+	*    Author: J. Rietdorf and A. Seitz
+	*    Date: 2008
+	*    Code version: 3.0.1
+	*    Availability: https://github.com/fiji/Multi_Kymograph/releases/tag/Multi_Kymograph-3.0.1
+	*
+	***************************************************************************************/
 	/**
 	 * Slightly modified from MultipleKymograph plugin.
 	 * Walks (from start to end) on a polyline ROI to get the pixels along the way.
