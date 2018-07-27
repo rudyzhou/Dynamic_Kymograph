@@ -15,6 +15,12 @@ We recommend installing [fiji](http://fiji.sc/) (a package including imageJ and 
 
 * Restart fiji, and the plugin should appear in “Process” -> “Dynamic Kymograph”
 
+```
+The numbers after the hyphen denote the version number of the plugin.
+If you wish to install a more recent version, then you should delete the older file from the plugins folder
+and replace it with the new one.
+```
+
 ## Usage
 
 * In fiji, open the image stack that you would like to analyze
@@ -31,9 +37,27 @@ We recommend installing [fiji](http://fiji.sc/) (a package including imageJ and 
 
 * Once you have surveyed the stack and found a microtubule to analyze, use the polyline tool to trace the microtubule
 
+```
+Changing the number of points in a polyline is not currently supported by the plugin,
+so this means when you first draw your polyline, you should use enough points so that you
+have enough degrees of freedom to track any movements in the microtubule.
+```
+
 * Make sure that one of the points you drew is located on the seed of the microtubule (the bright spot that remains static throughout the stack.) You may want to scroll through the video to confirm that you have found such a point. Then you can either use the “Select anchor point” button or simply press “ctrl” while your mouse is hovering over the vertex to set this vertex as the anchor point. (You should see a message in the “Log” confirming this)
 
+```
+Selecting the anchor is relatively finicky. I recommend setting the anchor point as
+soon as you finish drawing your first polyline. Note you can still move the anchor point in
+the future, but you cannot change what point you have selected as the anchor point.
+```
+
 * Once you have your initial polyline and anchor point, you can simply scroll through the video and modify your polyline on any frame to best capture the dynamics of the microtubule (by dragging the polyline vertices or translating the whole polyline using the arrow keys.)
+
+```
+More technically, every time you modify the polyline, the plugin will record a new
+“key frame.” The plugin automatically interpolates all key frames, so when you scroll
+through the video the changes in the polyline will be reflected. 
+```
 
 * Once you watch the video and are happy with your polyline, you can press the “Make kymograph” button to generate your kymograph.
 
@@ -41,14 +65,27 @@ We recommend installing [fiji](http://fiji.sc/) (a package including imageJ and 
 
 * If you want to analyze a new microtubule on the same stack, press “Save current ROI” to keep track of your analyzed microtubule, and then press “Reset key frames” to begin working on the next microtubule.
 
+```
+“Save current ROI” will draw your current ROI in a random color on the second
+window. If you don’t like the color that is used, you can just keep pressing the “Save current
+ROI” button to cycle through random colors until you find one you like. 
+```
+
 * If you want to close the plugin, press the “x” button on the “Dynamic Kymograph” window
+
+```
+If you want to analyze another stack, you must close the plugin and your current
+stack, open the new stack, and then re-run the plugin. 
+```
 
 ## Authors
 
-* **Rudy Zhou** - [rudyzhou](https://github.com/rudyzhou)
+* Rudy Zhou - [rudyzhou](https://github.com/rudyzhou)
 
 ## License
 
 This project is licensed under the GNU General Public License v3 (GPLv3) - see the [license.md](https://github.com/rudyzhou/Dynamic_Kymograph/blob/master/license.md) file for more information.
 
 ## Acknowledgments
+
+* Some code used from [Multiple Kymograph plugin](https://github.com/fiji/Multi_Kymograph/tree/Multi_Kymograph-3.0.1) by J. Rietdorf and A. Seitz
