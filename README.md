@@ -21,6 +21,8 @@ We recommend installing [Fiji](http://fiji.sc/) (a package including imageJ and 
 
 2. Run the dynamic kymograph plugin (in “Process” -> “Dynamic Kymograph”).
 
+![Example of UI]{ui_pic.jpg}
+
 3. The UI has the following features:
   * **Select anchor point** – Prompts the user to click on a vertex to set it as the anchor point (the anchor point status is reflected in the status message below the buttons)
   * **Make kymograph** – Prompts the user for line width and then generates a kymograph using all interpolated key frames and the selected anchor point
