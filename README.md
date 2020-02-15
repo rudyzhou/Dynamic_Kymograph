@@ -1,6 +1,8 @@
 # Dynamic_Kymograph
 
-ImageJ plugin for kymographs with key framing and interpolation
+ImageJ plugin for kymographs with key framing and interpolation. This readme describes how to use Dynamic Kymograph to analyze microtubule dynamics and generate kymographs for ROIs like this:
+
+![Example ROI](/images/kymo_demonstration.gif)
 
 ## Prerequisites
 
@@ -17,13 +19,11 @@ We recommend installing [Fiji](http://fiji.sc/) (a package including ImageJ and 
 
 ## Usage
 
-We describe the typical workflow for using Dynamic Kympgraph to analyze microtubule dynamics.
-
 1. In Fiji, open the image stack that you would like to analyze
 
 2. Run the dynamic kymograph plugin (in “Process” -> “Dynamic Kymograph”). The following UI should appear:
 
-![Example of UI](/ui_pic2.JPG)
+![Example of UI](/images/ui_pic2.JPG)
 
 3. The UI has the following features:
   * **Select anchor point** – Prompts the user to click on a vertex to set it as the anchor point (the anchor point status is reflected in the status message below the buttons)
@@ -34,6 +34,8 @@ We describe the typical workflow for using Dynamic Kympgraph to analyze microtub
   * **Saved ROIs window** – Displays the first frame of the stack. Any ROIs saved using the “Save Current ROI” button will appear here
 
 4. Once you have surveyed the stack and found a microtubule to analyze, use the polyline tool to trace the microtubule
+
+![Tracing Microtubule](/images/microtubule_start.JPG)
 
 **Note:** Changing the number of points in a polyline is not currently supported by the plugin,
 so this means when you first draw your polyline, you should use enough points so that you
@@ -53,6 +55,8 @@ through the video the changes in the polyline will be reflected.
 ```
 
 7. Once you watch the video and are happy with your polyline, you can press the “Make kymograph” button to generate your kymograph.
+
+![Final Kymograph](/images/kymo.JPG)
 
 8. If you are not satisfied with your kymograph, you can simply continue editing the polyline as in step 4 and generate a new kymograph.
 
