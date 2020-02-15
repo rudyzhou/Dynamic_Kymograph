@@ -1,6 +1,6 @@
 # Dynamic_Kymograph
 
-ImageJ plugin for kymographs with key framing and interpolation. This readme describes how to use Dynamic Kymograph to analyze microtubule dynamics and generate kymographs for ROIs like this:
+Dynamic Kymograph is an ImageJ plugin for kymographs with key framing and interpolation. This readme describes how to use Dynamic Kymograph to create ROIs like this and generate kymographs from such ROIs.
 
 ![Example ROI](/images/kymo_demonstration.gif)
 
@@ -11,15 +11,17 @@ We recommend installing [Fiji](http://fiji.sc/) (a package including ImageJ and 
 
 ## Installation
 
-* Download the "Dynamic_Kymograph-(version number).jar" fine on your own computer. (The most recent version of the plugin can be found at [the releases tab](https://github.com/rudyzhou/Dynamic_Kymograph/releases) on the Dynamic_Kymograph GitHub page.)
+* Download the "Dynamic_Kymograph-(version number).jar" file on your own computer. (The most recent version of the plugin can be found at [the releases tab](https://github.com/rudyzhou/Dynamic_Kymograph/releases) on the Dynamic_Kymograph GitHub page.)
 
 * Save the file in the Fiji "plugins" folder.
 
-* Restart Fiji, and the plugin should appear in “Process” -> “Dynamic Kymograph”
+* Restart Fiji, and the plugin should appear in “Process” -> “Dynamic Kymograph”.
 
 ## Usage
 
-1. In Fiji, open the image stack that you would like to analyze
+We describe the typical workflow for using Dyanmic Kymograph to analyze microtubule dynamics.
+
+1. In Fiji, open the image stack that you would like to analyze.
 
 2. Run the dynamic kymograph plugin (in “Process” -> “Dynamic Kymograph”). The following UI should appear:
 
@@ -33,7 +35,7 @@ We recommend installing [Fiji](http://fiji.sc/) (a package including ImageJ and 
   * **Log window** – Records events such as when a keyframe is generated, when an anchor point is set, when the plugin is closed, etc. Mainly used for debugging
   * **Saved ROIs window** – Displays the first frame of the stack. Any ROIs saved using the “Save Current ROI” button will appear here
 
-4. Once you have surveyed the stack and found a microtubule to analyze, use the polyline tool to trace the microtubule
+4. Once you have surveyed the stack and found a microtubule to analyze, use the polyline tool to trace the microtubule.
 
 ![Tracing Microtubule](/images/microtubule_start.JPG)
 
@@ -66,12 +68,7 @@ through the video the changes in the polyline will be reflected.
 window. If you don’t like the color that is used, you can just keep pressing the “Save current
 ROI” button to cycle through random colors until you find one you like. 
 
-10. If you want to close the plugin, press the “x” button on the “Dynamic Kymograph” window
-
-
-**Note:** If you want to analyze another stack, you must close the plugin and your current
-stack, open the new stack, and then re-run the plugin. 
-
+10. If you want to close the plugin, press the “x” button on the “Dynamic Kymograph” window. If you want to analyze another stack, you must close the plugin and your current stack, open the new stack, and then re-run the plugin. 
 
 ## Authors
 
