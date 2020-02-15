@@ -1,11 +1,11 @@
 # Dynamic_Kymograph
 
-imagej plugin for kymographs with key framing and interpolation
+ImageJ plugin for kymographs with key framing and interpolation
 
 ## Prerequisites
 
-This plugin requires [imageJ](https://imagej.net/ImageJ2).
-We recommend installing [Fiji](http://fiji.sc/) (a package including imageJ and many plugins.) The rest of this readme will assume that the user is using Fiji.
+This plugin requires [ImageJ](https://imagej.net/ImageJ2).
+We recommend installing [Fiji](http://fiji.sc/) (a package including ImageJ and many plugins.) The rest of this readme will assume that the user is using Fiji.
 
 ## Installation
 
@@ -19,7 +19,7 @@ We recommend installing [Fiji](http://fiji.sc/) (a package including imageJ and 
 
 1. In Fiji, open the image stack that you would like to analyze
 
-2. Run the dynamic kymograph plugin (in “Process” -> “Dynamic Kymograph”).
+2. Run the dynamic kymograph plugin (in “Process” -> “Dynamic Kymograph”). The following UI should appear:
 
 ![Example of UI](/ui_pic2.JPG)
 
