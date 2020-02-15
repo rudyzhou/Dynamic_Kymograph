@@ -19,7 +19,7 @@ We recommend installing [Fiji](http://fiji.sc/) (a package including ImageJ and 
 
 ## Usage
 
-We describe the typical workflow for using Dyanmic Kymograph to analyze microtubule dynamics.
+We describe the typical workflow for using Dynamic Kymograph to analyze microtubule dynamics.
 
 1. In Fiji, open the image stack that you would like to analyze.
 
