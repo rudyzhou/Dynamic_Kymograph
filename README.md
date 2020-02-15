@@ -17,6 +17,8 @@ We recommend installing [Fiji](http://fiji.sc/) (a package including ImageJ and 
 
 ## Usage
 
+We describe the typical workflow for using Dynamic Kympgraph to analyze microtubule dynamics.
+
 1. In Fiji, open the image stack that you would like to analyze
 
 2. Run the dynamic kymograph plugin (in “Process” -> “Dynamic Kymograph”). The following UI should appear:
