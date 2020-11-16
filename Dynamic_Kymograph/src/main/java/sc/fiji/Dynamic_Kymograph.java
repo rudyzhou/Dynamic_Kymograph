@@ -268,9 +268,9 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 */
 	private void saveRoi() {
 		
-		Roi currentRoi = (Roi) interpolatedRois[1].clone();
-		
-		if (currentRoi != null) {
+		if (interpolatedRois[1] != null) {
+			
+			Roi currentRoi = (Roi) interpolatedRois[1].clone();
 			
 			if(overlayRois.contains(currentRoi)) { //allows user to cycle through random colors by repeatedly calling saveRoi
 				
@@ -686,7 +686,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 			if(recordedRois.size() == 1) { //nothing to interpolate
 				for (Roi roi : recordedRois.values()) {
 					for(int i = 1; i < interpolatedRois.length; i++) {
-						interpolatedRois[i] = roi;
+						interpolatedRois[i] = roiCopy((PolygonRoi) roi);
 					}
 				}
 			}
@@ -699,12 +699,12 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 				int lastKeyFrame = sortedRois.get(sortedRois.size()-1);
 				
 				for (int frame : sortedRois) {
-					interpolatedRois[frame] = recordedRois.get(frame);
+					interpolatedRois[frame] = roiCopy((PolygonRoi) recordedRois.get(frame));
 				}
 				
-				interpolatedRois[1] = interpolatedRois[firstKeyFrame];	//propagate first key frame to beginning of image stack
+				interpolatedRois[1] = roiCopy((PolygonRoi) interpolatedRois[firstKeyFrame]);	//propagate first key frame to beginning of image stack
 				
-				interpolatedRois[numFrames] = interpolatedRois[lastKeyFrame]; 	//propagate last key frame to end of image stack
+				interpolatedRois[numFrames] = roiCopy((PolygonRoi) interpolatedRois[lastKeyFrame]); 	//propagate last key frame to end of image stack
 				
 				//the "if" statements ensure that there will be no interpolation before the first key frame and after the last key frame
 				if(!sortedRois.contains(1)) {
@@ -725,7 +725,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 					
 					currentFrame = roiIterator.next();
 					System.out.println("current frame: " + currentFrame);
-					Roi[] currentInterpolation = {interpolatedRois[currentFrame]};
+					Roi[] currentInterpolation = {roiCopy((PolygonRoi) interpolatedRois[currentFrame])};
 					
 					if (roiIterator.hasNext()) {
 						nextFrame = roiIterator.next();
@@ -735,7 +735,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 					}
 					
 					for (int i = 0; i <currentInterpolation.length; i++) {
-						interpolatedRois[currentFrame + i] = currentInterpolation[i];	//fill in the interpolated frames between currentFrame and nextFrame
+						interpolatedRois[currentFrame + i] = roiCopy((PolygonRoi) currentInterpolation[i]);	//fill in the interpolated frames between currentFrame and nextFrame
 					}
 					
 					currentFrame = nextFrame;
@@ -752,7 +752,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	public void fillRoiArray() {
 		
 		System.out.println(recordedRois);
-		Roi.removeRoiListener(this);
+		Roi.removeRoiListener(this);	
 		
 		if(!recordedRois.isEmpty()) {
 			
@@ -798,6 +798,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 					
 					currentFrame = roiIterator.next();
 					System.out.println("current frame: " + currentFrame);
+					System.out.println("current roi: " + recordedRois.get(currentFrame));
 					
 					if (roiIterator.hasNext()) {
 						nextFrame = roiIterator.next();
@@ -812,6 +813,116 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 					}
 					currentFrame = nextFrame;
 				}
+			}
+		}
+		Roi.addRoiListener(this);
+	}
+	
+	public void fillRoiArrayInterpolateTest() {
+		System.out.println(recordedRois);
+		Roi.removeRoiListener(this);
+		
+		if(!recordedRois.isEmpty()) {
+			
+			interpolatedRois = new Roi[numFrames + 1];
+			
+			int firstKeyFrame = Integer.MAX_VALUE;
+			int lastKeyFrame = Integer.MIN_VALUE;
+			
+			for(int key: recordedRois.keySet()) {
+				if(key < firstKeyFrame) {
+					firstKeyFrame = key;
+				}
+				if(key > lastKeyFrame) {
+					lastKeyFrame = key;
+				}
+			}
+			
+			//System.out.println("first: " + firstKeyFrame);
+			//System.out.println("last: " + lastKeyFrame);
+			
+			for(int frame = 1; frame <= firstKeyFrame; frame++) {
+				interpolatedRois[frame] = roiCopy((PolygonRoi) recordedRois.get(firstKeyFrame));
+			}
+			
+			for(int frame = lastKeyFrame; frame <= numFrames; frame++) {
+				interpolatedRois[frame] = roiCopy((PolygonRoi) recordedRois.get(lastKeyFrame));
+			}
+			
+			int currentKeyFrame = firstKeyFrame;
+			int nextKeyFrame = lastKeyFrame;
+			Roi[] currentInterpolation;
+			
+			for(int frame = firstKeyFrame + 1; frame < lastKeyFrame; frame++) {
+				if (recordedRois.containsKey(frame)) {
+					
+					nextKeyFrame = frame;
+					currentInterpolation = interpolateRoi(roiCopy((PolygonRoi) recordedRois.get(currentKeyFrame)), roiCopy((PolygonRoi) recordedRois.get(nextKeyFrame)), currentKeyFrame, nextKeyFrame);
+					
+					for (int i = 0; i <currentInterpolation.length; i++) {
+						interpolatedRois[currentKeyFrame + i] = currentInterpolation[i];	//fill in the interpolated frames between currentFrame and nextFrame
+					}
+					
+					currentKeyFrame = nextKeyFrame;
+				}
+				
+			}
+		}
+		Roi.addRoiListener(this);
+	}
+	
+	public void fillRoiArrayTest() {
+		System.out.println(recordedRois);
+		Roi.removeRoiListener(this);
+		
+		interpolatedRois = new Roi[numFrames + 1];
+		
+		if(!recordedRois.isEmpty()) {
+			
+			int firstKeyFrame = Integer.MAX_VALUE;
+			int lastKeyFrame = Integer.MIN_VALUE;
+			
+			for(int key: recordedRois.keySet()) {
+				if(key < firstKeyFrame) {
+					firstKeyFrame = key;
+				}
+				if(key > lastKeyFrame) {
+					lastKeyFrame = key;
+				}
+			}
+			
+			System.out.println("first: " + firstKeyFrame);
+			System.out.println("last: " + lastKeyFrame);
+			
+			for(int frame = 1; frame <= firstKeyFrame; frame++) {
+				interpolatedRois[frame] = roiCopy((PolygonRoi) recordedRois.get(firstKeyFrame));
+			}
+			
+			for(int frame = lastKeyFrame; frame <= numFrames; frame++) {
+				interpolatedRois[frame] = roiCopy((PolygonRoi) recordedRois.get(lastKeyFrame));
+			}
+			
+			int currentKeyFrame = firstKeyFrame;
+			
+			for(int frame = firstKeyFrame + 1; frame < lastKeyFrame; frame++) {
+				if (recordedRois.containsKey(frame)) {
+					currentKeyFrame = frame;
+				}
+				interpolatedRois[frame] = roiCopy((PolygonRoi) recordedRois.get(currentKeyFrame));
+			}
+		}
+		Roi.addRoiListener(this);
+	}
+	
+	public void showKeyFrames() {
+		
+		System.out.println(recordedRois);
+		Roi.removeRoiListener(this);
+		
+		if(!recordedRois.isEmpty()) {
+				
+				for (int frame : recordedRois.keySet()){
+					interpolatedRois[frame] = recordedRois.get(frame);
 			}
 		}
 		Roi.addRoiListener(this);
@@ -950,7 +1061,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	        
 	        if (id == MODIFIED || id == COMPLETED || id == MOVED) {
 	        	
-	        	Roi currentRoi = imp.getRoi();
+	        	Roi currentRoi =imp.getRoi();
 	        	int currentFrame = imp.getCurrentSlice();
 	        	
 	        	IJ.log("ROI event: " + type);
@@ -960,11 +1071,18 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	        	}
 	        	else if (currentRoi.getType() == Roi.POLYLINE) {
 	        		//record as key frame
-	        		Roi toPut = (Roi) currentRoi.clone();
-	    		
+	        		//Roi toPut = (Roi) currentRoi.clone();
+	        		Roi toPut = roiCopy((PolygonRoi) currentRoi);
+	        		
 	    			IJ.log("Frame: " + currentFrame + " record ROI: " + currentRoi);
+	    			
 	    			recordedRois.put(currentFrame, toPut);
+	    			
 	    			fillRoiArrayInterpolate();
+	    			//fillRoiArrayInterpolateTest();
+	    			//fillRoiArray();
+	    			//fillRoiArrayTest();    			
+	    			//showKeyFrames();
 	        	}
 	        	else {
 	        		IJ.error("RoiListener error: please use polyline tool");
@@ -977,6 +1095,16 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		}
 	}
 
+	private PolygonRoi roiCopy(PolygonRoi toCopy) {
+		
+		FloatPolygon polyToCopy = toCopy.getFloatPolygon();
+		
+		float[] xToCopy = polyToCopy.xpoints;
+		float[] yToCopy = polyToCopy.ypoints;
+		int numToCopy = polyToCopy.npoints;
+		
+		return new PolygonRoi(xToCopy, yToCopy, numToCopy, Roi.POLYLINE);
+	}
 	/**
 	 * Prompts the user to input an integer for the line width.
 	 * 
@@ -1002,7 +1130,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	 */
 	@Override
 	public void imageUpdated(ImagePlus ip) {
-
+		
 		int currentFrame = image.getCurrentSlice();
 		IJ.log("Frame: " + currentFrame + ", change ROI to: " + interpolatedRois[currentFrame]);
 		image.setRoi(interpolatedRois[currentFrame]);
