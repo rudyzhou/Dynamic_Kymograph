@@ -14,7 +14,7 @@
  
     <groupId>com.rudyzhou</groupId>
     <artifactId>Dynamic_Kymograph</artifactId>
-    <version>v1.3-SNAPSHOT</version>
+    <version>v1.4-SNAPSHOT</version>
  
     <name>Dynamic Kymograph</name>
     <description>ImageJ plugin for kymograph with key-framing and interpolation</description>

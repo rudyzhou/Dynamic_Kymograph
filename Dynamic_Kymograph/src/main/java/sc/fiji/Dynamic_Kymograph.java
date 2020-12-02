@@ -100,9 +100,9 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		image = IJ.getImage();
 		window = image.getWindow();
 		canvas = image.getCanvas();
-		numFrames = image.getNSlices();
+		numFrames = image.getImageStackSize();
 		imageType = image.getType();
-		
+
 		//initialize Saved ROIs window as copy of first frame of image. Set up the overlay, which is used to store and display multiple ROIs
 		savedRois = new ImagePlus("Saved ROIS",  image.getStack().getProcessor(1));
 		savedRois.show();
@@ -190,7 +190,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		new ImageJ();
 
 		// open example stack
-		ImagePlus image = IJ.openImage("D:/Users/rudyz/Documents/Graduate3/biology/code/pic.tif");	//TODO in general will need to change this file path
+		ImagePlus image = IJ.openImage("D:/Users/rudyz/Documents/Graduate3/biology/errors/newtest/newtest.tiff");	//TODO in general will need to change this file path
 		image.show();
 
 		// run the test plugin
@@ -270,7 +270,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		if (interpolatedRois[1] != null) {
 			
-			Roi currentRoi = (Roi) interpolatedRois[1].clone();
+			Roi currentRoi = roiCopy((PolygonRoi) interpolatedRois[1]);
 			
 			if(overlayRois.contains(currentRoi)) { //allows user to cycle through random colors by repeatedly calling saveRoi
 				
