@@ -4,6 +4,12 @@ Dynamic Kymograph is an ImageJ plugin for kymographs with key framing and interp
 
 ![Example ROI](/images/kymo_demonstration.gif)
 
+See the following paper for more information on this plugin, as well as a related plugin [Microtubule Kymograph Analysis](https://github.com/mrsata/Microtubule_Kymograph_Analysis), which is used to anayze the resulting kymographs and generate useful statistics.
+
+Rudy Zhou, Han Liu, Tao Ju, Ram Dixit
+Quantifying the polymerization dynamics of plant cortical microtubules using kymograph analysis
+Methods in Cell Biology, Academic Press, 2020. ISSN 0091-679X. [(link)](https://www.sciencedirect.com/science/article/pii/S0091679X20300704?via%3Dihub)
+
 ## Prerequisites
 
 This plugin requires [ImageJ](https://imagej.net/ImageJ2).
@@ -68,11 +74,11 @@ through the video the changes in the polyline will be reflected.
 window. If you don’t like the color that is used, you can just keep pressing the “Save current
 ROI” button to cycle through random colors until you find one you like. 
 
-10. If you want to close the plugin, press the “x” button on the “Dynamic Kymograph” window. If you want to analyze another stack, you must close the plugin and your current stack, open the new stack, and then re-run the plugin. 
+10. If you want to close the plugin, press the “x” button on the “Dynamic Kymograph” window. If you want to analyze another stack, you must close the plugin and your current stack, open the new stack, and then re-run the plugin.
 
 ## Authors
 
-* Rudy Zhou - [rudyzhou](https://github.com/rudyzhou)
+* Rudy Zhou - [rudyzhou](https://rudyzhou.github.io/)
 
 ## License
 
