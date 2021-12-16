@@ -43,6 +43,8 @@ import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.gui.TextRoi;
 
+import ij.measure.Calibration;
+
 import ij.plugin.PlugIn;
 import ij.plugin.frame.PlugInFrame;
 
@@ -71,6 +73,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 	protected ImagePlus image;
 	private int numFrames;
 	private ImageWindow window;
+	private Calibration calibration;
 	private ImageCanvas canvas;
 	private int imageType;
 	
@@ -100,6 +103,7 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		image = IJ.getImage();
 		window = image.getWindow();
 		canvas = image.getCanvas();
+		calibration = image.getCalibration();
 		numFrames = image.getImageStackSize();
 		imageType = image.getType();
 
@@ -914,6 +918,13 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		
 		//display final kymograph
 		ImagePlus kymoToDisplay = new ImagePlus("Kymograph", kymo);
+
+		Calibration kymoCal = kymoToDisplay.getCalibration();
+		kymoCal.pixelHeight = calibration.frameInterval;
+		kymoCal.setYUnit(calibration.getTimeUnit());
+		kymoCal.pixelWidth = calibration.pixelWidth;
+		kymoCal.setXUnit(calibration.getXUnit());
+
 		kymoToDisplay.show();
 		
 		System.out.println(recordedRois);
