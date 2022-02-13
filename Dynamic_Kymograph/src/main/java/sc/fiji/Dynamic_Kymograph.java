@@ -109,6 +109,11 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 
 		//initialize Saved ROIs window as copy of first frame of image. Set up the overlay, which is used to store and display multiple ROIs
 		savedRois = new ImagePlus("Saved ROIS",  image.getStack().getProcessor(1));
+		Calibration savedCal = savedRois.getCalibration();
+		savedCal.pixelHeight = calibration.pixelHeight;
+		savedCal.setYUnit(calibration.getYUnit());
+		savedCal.pixelWidth = calibration.pixelWidth;
+		savedCal.setXUnit(calibration.getXUnit());
 		savedRois.show();
 		overlayRois = new Overlay();
 		savedRois.setOverlay(overlayRois);
@@ -920,7 +925,9 @@ public class Dynamic_Kymograph extends PlugInFrame implements PlugIn, ActionList
 		ImagePlus kymoToDisplay = new ImagePlus("Kymograph", kymo);
 
 		Calibration kymoCal = kymoToDisplay.getCalibration();
-		kymoCal.pixelHeight = calibration.frameInterval;
+		if(Double.isFinite(calibration.frameInterval)) {
+			kymoCal.pixelHeight = calibration.frameInterval;
+		}
 		kymoCal.setYUnit(calibration.getTimeUnit());
 		kymoCal.pixelWidth = calibration.pixelWidth;
 		kymoCal.setXUnit(calibration.getXUnit());
